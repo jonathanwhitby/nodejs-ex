@@ -1,11 +1,11 @@
 pipeline {
   agent {
-      label 'node'
+    label 'node'
   }
   stages {
     stage('Build Image') {
       steps {
-        openshiftBuild(buildConfig: 'nodejs-ex')
+        openshiftBuild(bldCfg: 'nodejs-ex')
       }
     }
   }
