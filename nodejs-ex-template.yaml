@@ -78,10 +78,7 @@ objects:
     strategy:
       dockerStrategy: {}
       type: Docker
-    triggers:
-    - type: ConfigChange
-    - imageChange: {}
-      type: ImageChange
+    triggers: []
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
