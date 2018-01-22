@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Template
 labels:
   template: nodejs-ex-template
-  app: ${APP_NAME}
+  app: nodejs-ex
 metadata:
   annotations:
     description: Node.js Example Pipeline Template
