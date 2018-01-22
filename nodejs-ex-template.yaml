@@ -27,11 +27,6 @@ parameters:
     blank a value will be defaulted.
   displayName: Application Hostname
   name: APPLICATION_DOMAIN
-- description:
-  displayName:
-  name:
-  required: true
-  value:
 objects:
 - apiVersion: v1
   kind: ImageStream
