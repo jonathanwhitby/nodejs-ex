@@ -78,6 +78,10 @@ objects:
     strategy:
       dockerStrategy: {}
       type: Docker
+    triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
@@ -112,7 +116,7 @@ objects:
           - ${APP_NAME}
         from:
           kind: ImageStreamTag
-          name: '${APP_NAME}:latest'
+          name: ${APP_NAME}:latest
         type: ImageChange
 - apiVersion: v1
   kind: Service
