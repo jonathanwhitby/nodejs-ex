@@ -1,0 +1,16 @@
+apiVersion: "v1"
+kind: "BuildConfig"
+metadata:
+  name: "nodejs-ex"
+spec:
+  source:
+    git:
+      uri: "https://github.com/jonathanwhitby/nodejs-ex"
+      ref: "master"
+  strategy:
+    dockerStrategy:
+      dockerfilePath:
+  output:
+    to:
+      kind: "ImageStreamTag"
+      name: "ci/nodejs-ex:latest"

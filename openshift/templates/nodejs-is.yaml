@@ -1,0 +1,9 @@
+apiVersion: "v1"
+kind: "ImageStream"
+metadata:
+  name: "nodejs-ex"
+  labels:
+    application: "nodejs-ex"
+spec:
+  tags:
+    - name: "latest"

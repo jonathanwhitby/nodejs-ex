@@ -1,0 +1,153 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: nodejs-ex-template
+  app: ${APP_NAME}
+metadata:
+  annotations:
+    description: Node.js Example Pipeline Template
+    iconClass: icon-jenkins
+    tags: jenkins,cicd
+  name: nodejs-ex-cicd-template
+parameters:
+- displayName: Application name
+  name: APP_NAME
+  required: true
+  value: nodejs-ex
+- description: Git source URI for application
+  displayName: Git source repository
+  name: GIT_URI
+  required: true
+  value: https://github.com/jonathanwhitby/nodejs-ex.git
+- displayName: Git branch/tag reference
+  name: GIT_REF
+  required: true
+  value: master
+- description: The exposed hostname that will route to the Node.js service, if left
+    blank a value will be defaulted.
+  displayName: Application Hostname
+  name: APPLICATION_DOMAIN
+- description:
+  displayName:
+  name:
+  required: true
+  value:
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: ${APP_NAME}
+    labels:
+      application: ${APP_NAME}
+  spec:
+    tags:
+    - name: latest
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    name: ${APP_NAME}
+    labels:
+      application: ${APP_NAME}
+    annotations:
+      description: Defines how to build the application
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: ${APP_NAME}:latest
+    source:
+      git:
+        ref: ${GIT_REF}
+        uri: ${GIT_URI}
+      type: Git
+    strategy:
+      dockerStrategy: {}
+      type: Docker
+    triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    creationTimestamp: null
+    name: ${APP_NAME}-pipeline
+  spec:
+    runPolicy: Serial
+    source:
+      git:
+        ref: ${GIT_REF}
+        uri: ${GIT_URI}
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath:
+      type: JenkinsPipeline
+    triggers:
+    - github:
+        secret: 908a2de07a51039b
+      type: GitHub
+- apiVersion: v1
+kind: DeploymentConfig
+metadata:
+  annotations:
+  labels:
+    app: ${APP_NAME}
+  name: ${APP_NAME}
+spec:
+  replicas: 1
+  selector:
+    app: ${APP_NAME}
+    deploymentconfig: ${APP_NAME}
+  template:
+    metadata:
+      annotations:
+      labels:
+        app: ${APP_NAME}
+        deploymentconfig: ${APP_NAME}
+    spec:
+      containers:
+      - image: ${APP_NAME}:latest
+        imagePullPolicy: IfNotPresent
+        name: ${APP_NAME}
+        ports:
+        - containerPort: 5000
+          protocol: TCP
+  triggers:
+    - type: ConfigChange
+    - imageChangeParams:
+        automatic: false
+        containerNames:
+          - ${APP_NAME}
+        from:
+          kind: ImageStreamTag
+          name: '${APP_NAME}:latest'
+      type: ImageChange
+- apiVersion: v1
+  kind: Service
+  metadata:
+    labels:
+      app: ${APP_NAME}
+      application: ${APP_NAME}
+    name: ${APP_NAME}
+  spec:
+    ports:
+    - name: 5000-8080-tcp
+      port: 5000
+      protocol: TCP
+      targetPort: 8080
+    selector:
+      deploymentconfig: ${APP_NAME}
+- apiVersion: v1
+  kind: Route
+  metadata:
+    labels:
+      application: ${APP_NAME}
+    name: ${APP_NAME}
+  spec:
+    host: ${APPLICATION_DOMAIN}
+    port:
+      targetPort: 5000-8080-tcp
+    to:
+      kind: Service
+      name: ${APP_NAME}
