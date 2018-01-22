@@ -45,6 +45,26 @@ objects:
 - apiVersion: v1
   kind: BuildConfig
   metadata:
+    creationTimestamp: null
+    name: nodejs-ex-pipeline
+  spec:
+    runPolicy: Serial
+    source:
+      git:
+        ref: ${GIT_REF}
+        uri: ${GIT_URI}
+      type: Git
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfilePath:
+      type: JenkinsPipeline
+    triggers:
+    - github:
+        secret: 908a2de07a51039b
+      type: GitHub
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
     name: ${APP_NAME}
     labels:
       application: ${APP_NAME}
@@ -68,61 +88,41 @@ objects:
     - imageChange: {}
       type: ImageChange
 - apiVersion: v1
-  kind: BuildConfig
+  kind: DeploymentConfig
   metadata:
-    creationTimestamp: null
-    name: ${APP_NAME}-pipeline
+    annotations:
+    labels:
+      app: ${APP_NAME}
+    name: ${APP_NAME}
   spec:
-    runPolicy: Serial
-    source:
-      git:
-        ref: ${GIT_REF}
-        uri: ${GIT_URI}
-      type: Git
-    strategy:
-      jenkinsPipelineStrategy:
-        jenkinsfilePath:
-      type: JenkinsPipeline
+    replicas: 1
+    selector:
+      app: ${APP_NAME}
+      deploymentconfig: ${APP_NAME}
+    template:
+      metadata:
+        annotations:
+        labels:
+          app: ${APP_NAME}
+          deploymentconfig: ${APP_NAME}
+      spec:
+        containers:
+        - image: ${APP_NAME}:latest
+          imagePullPolicy: IfNotPresent
+          name: ${APP_NAME}
+          ports:
+          - containerPort: 5000
+            protocol: TCP
     triggers:
-    - github:
-        secret: 908a2de07a51039b
-      type: GitHub
-- apiVersion: v1
-kind: DeploymentConfig
-metadata:
-  annotations:
-  labels:
-    app: ${APP_NAME}
-  name: ${APP_NAME}
-spec:
-  replicas: 1
-  selector:
-    app: ${APP_NAME}
-    deploymentconfig: ${APP_NAME}
-  template:
-    metadata:
-      annotations:
-      labels:
-        app: ${APP_NAME}
-        deploymentconfig: ${APP_NAME}
-    spec:
-      containers:
-      - image: ${APP_NAME}:latest
-        imagePullPolicy: IfNotPresent
-        name: ${APP_NAME}
-        ports:
-        - containerPort: 5000
-          protocol: TCP
-  triggers:
-    - type: ConfigChange
-    - imageChangeParams:
+      - type: ConfigChange
+      - imageChangeParams:
         automatic: false
         containerNames:
           - ${APP_NAME}
         from:
           kind: ImageStreamTag
           name: '${APP_NAME}:latest'
-      type: ImageChange
+        type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
