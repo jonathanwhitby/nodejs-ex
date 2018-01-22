@@ -78,7 +78,6 @@ objects:
     strategy:
       dockerStrategy: {}
       type: Docker
-    triggers: []
 - apiVersion: v1
   kind: DeploymentConfig
   metadata:
