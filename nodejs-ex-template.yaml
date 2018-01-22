@@ -111,13 +111,13 @@ objects:
     triggers:
       - type: ConfigChange
       - imageChangeParams:
-        automatic: true
-        containerNames:
-          - ${APP_NAME}
-        from:
-          kind: ImageStreamTag
-          name: ${APP_NAME}:latest
-        type: ImageChange
+          automatic: true
+          containerNames:
+            - ${APP_NAME}
+          from:
+            kind: ImageStreamTag
+            name: ${APP_NAME}:latest
+          type: ImageChange
 - apiVersion: v1
   kind: Service
   metadata:
