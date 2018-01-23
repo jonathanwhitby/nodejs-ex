@@ -7,10 +7,14 @@ pipeline {
       }
     }
     stage('Deploy Image') {
-       openshiftDeploy(depCfg: 'nodejs-ex')
+      steps {
+         openshiftDeploy(depCfg: 'nodejs-ex')
+      }
     }
     stage('Verfy Deployment') {
-       openshiftVerifyDeployment(depCfg: 'nodejs-ex')
+      steps {
+         openshiftVerifyDeployment(depCfg: 'nodejs-ex')
+      }
     }
   }
 }
